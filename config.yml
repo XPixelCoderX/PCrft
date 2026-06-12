@@ -1,0 +1,39 @@
+# ================================
+# PCrft Xbox Invite Bot - Config
+# ================================
+
+version: "1.0.0"
+
+# ----------------
+# Server Settings
+# ----------------
+server:
+  ip: "play.pcsmp.net"     # Bedrock server IP
+  port: 19132              # Bedrock server port
+  world_version: "1.21.80" # Version shown to Xbox Live
+
+# ----------------
+# Bot Settings
+# ----------------
+bot:
+  cache_folder: "./cache"  # Where Xbox auth tokens are stored
+  api_port: 3000           # Node.js API port
+  auto_start: true         # Python dashboard auto-starts Node bot
+
+# ----------------
+# Dashboard Settings
+# ----------------
+dashboard:
+  host: "0.0.0.0"
+  port: 5000
+  title: "PCrft Invite Panel"
+  message_text: >
+    If you want to rejoin the server, add "PCrft" on Xbox,
+    and you will be able to join through your friends list!
+
+# ----------------
+# Logging
+# ----------------
+logging:
+  level: "info"
+  file: "./logs/bot.log"
