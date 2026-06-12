@@ -17,7 +17,14 @@ const WORLD_VERSION = config.server.world_version || '26.23';
 const CACHE_FOLDER = config.bot.cache_folder || './cache';
 const API_PORT = config.bot.api_port || 3000;
 
+const MESSAGE_TEXT =
+  (config.message && config.message.text) ||
+  'If you want to rejoin the server, add "PCrft" on Xbox, and you will be able to join through your friends list!';
+
 // ================== AUTH / PORTAL ==================
+console.log('[INFO] Initializing Xbox authentication (prismarine-auth).');
+console.log('[INFO] On first use, a Microsoft device login URL and code will appear below in this console.');
+
 const auth = new Authflow('XboxBotAccount', CACHE_FOLDER);
 
 const portal = new BedrockPortal(auth, {
@@ -52,9 +59,7 @@ async function invitePlayer(gamertag) {
 
 async function messagePlayer(gamertag) {
   await ensurePortalStarted();
-  const msg =
-    'If you want to rejoin the server, add "PCrft" on Xbox, and you will be able to join through your friends list!';
-  console.log(`[INFO] Message for ${gamertag}: ${msg}`);
+  console.log(`[INFO] Message for ${gamertag}: ${MESSAGE_TEXT}`);
   // No direct DM API; we still send an invite so they get a notification.
   await portal.invitePlayer(gamertag);
   console.log(`[OK] Message (via invite) processed for ${gamertag}.`);
@@ -65,7 +70,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Simple HTML dashboard
+// Simple dark gray / light gray dashboard
 const HTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -288,7 +293,7 @@ const HTML = `
     <input id="gamertag" type="text" placeholder="Example: n2ab" autocomplete="off">
     <div class="hint">
       Message includes:
-      <span>If you want to rejoin the server, add "PCrft" on Xbox, and you will be able to join through your friends list!</span>
+      <span id="message-preview"></span>
     </div>
   </div>
 
@@ -373,6 +378,7 @@ async function refreshStatus() {
       val.textContent = 'Offline';
     }
     info.textContent = data.serverIp + ':' + data.serverPort;
+    document.getElementById('message-preview').textContent = data.messageText;
   } catch (e) {
     const dot = document.getElementById('status-dot');
     const val = document.getElementById('status-value');
@@ -387,15 +393,13 @@ setInterval(refreshStatus, 8000);
 </html>
 `;
 
-// API routes
+// Routes
 app.get('/', (_req, res) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(HTML);
 });
 
 app.get('/auth', (_req, res) => {
-  // prismarine-auth handles device flow internally and prints URL + code to console.
-  // This page just explains what to do and opens the Microsoft device login page.
   const html = `
   <!DOCTYPE html>
   <html lang="en">
@@ -414,7 +418,7 @@ app.get('/auth', (_req, res) => {
     <p>Steps:</p>
     <ol>
       <li>Open the Node.js console where this bot is running.</li>
-      <li>Find the device login URL and code.</li>
+      <li>Find the device login URL and code printed by prismarine-auth.</li>
       <li>Click the link below to open the Microsoft device login page.</li>
       <li>Enter the code from the console and sign in with your Xbox/Microsoft account.</li>
     </ol>
@@ -468,11 +472,12 @@ app.get('/api/status', (_req, res) => {
   res.json({
     portalStarted,
     serverIp: SERVER_IP,
-    serverPort: SERVER_PORT
+    serverPort: SERVER_PORT,
+    messageText: MESSAGE_TEXT
   });
 });
 
 app.listen(API_PORT, () => {
-  console.log(`[OK] Web dashboard and API listening on http://0.0.0.0:${API_PORT}`);
-  console.log('[INFO] Open http://your-server-ip:' + API_PORT + ' in your browser.');
+  console.log(`[OK] Web dashboard and API listening on http://127.0.0.1:${API_PORT}`);
+  console.log('[INFO] Open http://127.0.0.1:' + API_PORT + ' in your browser.');
 });
