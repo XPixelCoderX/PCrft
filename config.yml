@@ -3,13 +3,8 @@ version: "1.0.0"
 server:
   ip: "play.pcsmp.net"
   port: 19132
-  world_version: "26.23"
+  world_version: "1.21.80"
 
 bot:
   cache_folder: "./cache"
   api_port: 3000
-
-message:
-  text: >
-    If you want to rejoin the server, add "PCrft" on Xbox,
-    and you will be able to join through your friends list!
